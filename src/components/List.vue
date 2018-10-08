@@ -39,16 +39,13 @@ export default {
     newItem : '',
     list: [
       {
-        title : 'butt stuff0',
-        state : '',
+        title : 'walk dog',
       },
       {
-        title : 'butt stuff1',
-        state : '',
+        title : 'brush cat',
       },
       {
-        title : 'butt stuff2',
-        state : '',
+        title : 'pet teeth',
       },
 
     ]
