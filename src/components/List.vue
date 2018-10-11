@@ -2,7 +2,7 @@
   <div id="list" :class="listState">
     <div class="wrapper">
       <div id="title" class="flex-row">
-        <h1>Todo List</h1>
+        <h1>To-do List</h1>
         <i class="material-icons"
           @click="listState ='add' ">add</i>
       </div>
@@ -12,6 +12,7 @@
           :key="i"
           :listState="listState"
           v-on:update-item="updateItem"
+          v-on:update-item-state="updateItem"
           v-on:delete-item="deleteItem"/>
         <div class="item-input">
           <input placeholder="Walk the dog etc..."
@@ -39,13 +40,22 @@ export default {
     newItem : '',
     list: [
       {
+        id: 0,
         title : 'walk dog',
+        state : '',
+        created  : 1539277212573,
       },
       {
+        id: 1,
         title : 'brush cat',
+        state : '',
+        created : 1539277238093
       },
       {
+        id : 2,
         title : 'pet teeth',
+        state : '',
+        created : 1539277248783
       },
 
     ]
@@ -58,14 +68,16 @@ export default {
       if( state === 'add' ){
         this.$refs.itemInput.focus();
       }
-
     },
   },
   methods: {
 
     handleInput( title ){
 
-      const newItem = { title, state : '' };
+      const id = this.list.length;
+      const created = Date.now();
+
+      const newItem = { id, created, title, state : '' };
 
       this.list.push( newItem );
       this.resetForm();
@@ -73,9 +85,17 @@ export default {
 
     updateItem( item ){
 
-      const { index } = item;
+      const index = this.list.indexOf( val => val.id === item.id );
 
-      this.list[index].title = item.title;
+      this.list[index] = item;
+      this.updateList(this.list);
+    },
+
+    updateList( list ){
+
+      const sortCallback = ( a, b ) => b.state < a.state;
+
+      this.list = list.sort( sortCallback );
     },
 
     deleteItem( value ){
