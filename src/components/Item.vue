@@ -1,20 +1,28 @@
 <template>
   <div class="flex-row list-item"
-    :class="itemState">
-    <div class="menu-container">
-      <div class="flex-row wrapper">
-        <i class="material-icons" id="edit" @click="itemState = 'edit' ">edit</i>
-        <i class="material-icons" id="delete" @click="deleteItem">delete</i>
-        <i class="material-icons" id="menu"
-          @click="itemState = 'active' ">more_vert</i>
+    :class="rowState">
+    <div class="flex-row main-row "
+      :class="item.state">
+      <div class="menu-container">
+        <div class="flex-row wrapper">
+          <i class="material-icons" id="edit" @click.stop="rowState = 'edit' ">edit</i>
+          <i class="material-icons" id="delete" @click.stop="deleteItem">delete</i>
+          <i class="material-icons" id="menu"
+            @click.stop="rowState = 'active' ">more_vert</i>
+        </div>
       </div>
+      <p class="item-title">{{ item.title }}</p>
+      <input ref="item"
+        v-model="item.title"
+        @blur.stop="rowState = 'active' "
+        @keydown.enter.stop="updateItem( item )"
+        type="text">
     </div>
-    <p class="item-title">{{ item.title }}</p>
-    <input ref="item"
-      v-model="item.title"
-      @blur.prevent="itemState = 'active' "
-      @keydown.enter.prevent="updateItem( item )"
-      type="text">
+    <div class="flex-row completion-state"
+      :class="item.state">
+      <i class="material-icons" @click.stop.self="updateItemState( item )">adjust</i>
+      <i class="material-icons">panorama_fish_eye</i>
+    </div>
   </div>
 </template>
 
@@ -25,27 +33,35 @@ export default {
     item: Object,
   },
   data: () => ({
-    itemState : '',
+    rowState : '',
   }),
   watch : {
 
-    itemState( state ){
+    rowState( state ){
 
       if( state === 'edit' ){
         this.$refs.item.focus();
       }
-
     }
 
   },
   methods: {
 
-    updateItem( item ){
+    updateItem( item ){[]
 
-      const updatedItem = Object.assign( item, { index : this.$vnode.key });
+      this.$emit( 'update-item', item );
+      this.rowState = '';
+    },
 
-      this.$emit( 'update-item', updatedItem );
-      this.itemState = '';
+    updateItemState( item ){
+
+      const state = item.state ? '' : 'complete';
+
+      const updatedItem = Object.assign( item, { state });
+
+      this.$emit( 'update-item-state', updatedItem );
+      this.rowState = '';
+
     },
 
     deleteItem(){
@@ -53,7 +69,7 @@ export default {
       const index = this.$vnode.key;
 
       this.$emit( 'delete-item', index );
-      this.itemState = '';
+      this.rowState = '';
     }
 
   },
@@ -68,6 +84,49 @@ export default {
     align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid $lightGray;
+
+    .main-row{
+      flex: 1 1 0;
+
+      &.complete{
+        p, i.material-icons{
+          pointer-events: none;
+          color: $lightGray;
+        }
+        p{
+          text-decoration: line-through;
+        }
+      }
+    }
+
+    .completion-state{
+
+      &:hover{
+
+        i.material-icons:nth-of-type(1){
+          display: block;
+          color: $googleGreen;
+        }
+      }
+
+      i.material-icons{
+        cursor: pointer;
+        transition: all .2s ease;
+
+        &:nth-of-type(1){
+          position: absolute;
+          display: none;
+        }
+      }
+
+      &.complete{
+        color: $lightGray;
+
+        i.material-icons:hover{
+          color: black;
+        }
+      }
+    }
 
     .menu-container{
       transition: all .2s ease;
@@ -102,6 +161,13 @@ export default {
       color: $darkBlue;
     }
 
+    .completion-state{
+      position: relative;
+
+      i.material-icons{
+
+      }
+    }
   }
 
   .list-item.edit{
